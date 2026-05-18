@@ -1,9 +1,14 @@
 import { render } from "solid-js/web";
-import { PatchworkView } from "./PatchworkView";
-import { HelloWorld } from "./HelloWorld";
+import { PatchworkView } from "./core/PatchworkView";
+import { HelloUser } from "./examples/HelloUser";
+import { AccountProvider } from "./examples/AccountProvider";
 import "./styles.css";
 
-const App = () => <PatchworkView component={HelloWorld} />;
+const App = () => (
+  <PatchworkView component={AccountProvider}>
+    <PatchworkView component={HelloUser} />
+  </PatchworkView>
+);
 
 const root = document.getElementById("root");
 if (!root) {
