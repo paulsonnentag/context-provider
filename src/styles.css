@@ -147,7 +147,7 @@ body {
 
 /* Example surface */
 
-.patchwork-view {
+patchwork-view {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -187,39 +187,49 @@ body {
   transform: translateY(1px);
 }
 
-.text-editor-wrapper {
-  position: relative;
+.text-editor {
   width: 100%;
   max-width: 640px;
-  /* Reserve a gutter on the right so the floating comment button has its own
-     dedicated space outside the editor and can never overlap text. */
-  padding-right: 48px;
-}
-
-.text-editor {
-  font: inherit;
-  font-size: 1rem;
-  width: 100%;
   min-height: 220px;
-  padding: 1rem 1.25rem;
   background: #fff;
   border: 1px solid #ececec;
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  outline: none;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  line-height: 1.5;
-  color: #1f1f1f;
+  overflow: hidden;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.text-editor:focus {
+.text-editor:has(.cm-focused) {
   border-color: #d4d4d4;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.comment-button {
+.text-editor .cm-editor {
+  height: 100%;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.text-editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+.text-editor .cm-scroller {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  line-height: 1.5;
+  /* Reserve a right gutter so the comment button (positioned at right: 8px
+     within view.dom) never overlaps text. */
+  padding: 1rem 48px 1rem 1.25rem;
+}
+
+.text-editor .cm-content {
+  padding: 0;
+  caret-color: #1f1f1f;
+}
+
+/* Comment button rendered by commentButtonPlugin into view.dom (.cm-editor) */
+.cm-comment-button {
   position: absolute;
   right: 8px;
   display: inline-flex;
@@ -235,19 +245,104 @@ body {
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: transform 0.08s, color 0.15s, border-color 0.15s;
+  z-index: 5;
 }
 
-/* Author's display: inline-flex above wins over the UA's [hidden] { display: none },
-   so make the hidden state explicit here. */
-.comment-button[hidden] {
+.cm-comment-button[hidden] {
   display: none;
 }
 
-.comment-button:hover {
+.cm-comment-button:hover {
   color: #1f1f1f;
   border-color: #d4d4d4;
 }
 
-.comment-button:active {
+.cm-comment-button:active {
   transform: translateY(1px);
+}
+
+/* Theme @codemirror/autocomplete tooltip to match the app */
+.cm-tooltip.cm-tooltip-autocomplete {
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 4px;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul {
+  font-family: inherit;
+  max-height: 240px;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #1f1f1f;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: #f3f3f3;
+}
+
+/* Spatial canvas */
+
+.spatial-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 480px;
+  width: 100%;
+  background:
+    radial-gradient(circle, #e6e6e6 1px, transparent 1px) 0 0 / 16px 16px,
+    #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-titlebar {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #555;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ececec;
+  cursor: grab;
+  touch-action: none;
+  text-transform: capitalize;
+}
+
+.panel-titlebar:active {
+  cursor: grabbing;
+}
+
+.panel-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  min-height: 0;
+}
+
+/* The global `patchwork-view { flex: 1 }` rule would stretch the embedded
+   counter; inside a panel we want it to size to its content instead. */
+.panel-body patchwork-view {
+  flex: initial;
+  display: inline-flex;
 }

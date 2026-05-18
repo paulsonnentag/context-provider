@@ -4,7 +4,7 @@ import { TextEditorExample } from "./setup";
 const example: Example = {
   name: "Text Editor",
   description:
-    "Plain-text contenteditable synced through automerge.updateText().",
+    "CodeMirror bound to Automerge, with a comment-cursor ViewPlugin and @-city autocomplete.",
   component: TextEditorExample,
 };
 

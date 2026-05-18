@@ -1,5 +1,5 @@
 import type { Component as SolidComponent } from "solid-js";
-import { PatchworkView } from "../../core/PatchworkView";
+import "../../core/patchwork-view";
 import { respond } from "../../core/provider";
 import { StateHandle } from "../../core/state-handle";
 import type { Component, RequestEvent } from "../../core/types";
@@ -35,7 +35,7 @@ const AccountProvider: Component = async (element) => {
 };
 
 export const HelloUserExample: SolidComponent = () => (
-  <PatchworkView component={AccountProvider}>
-    <PatchworkView component={HelloUser} />
-  </PatchworkView>
+  <patchwork-view prop:component={AccountProvider}>
+    <patchwork-view prop:component={HelloUser} />
+  </patchwork-view>
 );
