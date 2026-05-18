@@ -4,7 +4,6 @@ import type {
   ResponseEventDetail,
   Selector,
 } from "./types";
-import type { StateHandle } from "./state-handle";
 
 let nextId = 0;
 const makeId = () => `req-${++nextId}`;
@@ -12,7 +11,7 @@ const makeId = () => `req-${++nextId}`;
 export function request<T = unknown>(
   element: HTMLElement,
   selector: Selector,
-): Promise<StateHandle<T>> {
+): Promise<T> {
   const id = makeId();
 
   return new Promise((resolve) => {
@@ -20,7 +19,7 @@ export function request<T = unknown>(
       const { detail } = event as CustomEvent<ResponseEventDetail>;
       if (detail.id !== id) return;
       element.removeEventListener("patchwork:response", onResponse);
-      resolve(detail.handle as StateHandle<T>);
+      resolve(detail.handle as T);
     };
 
     element.addEventListener("patchwork:response", onResponse);
@@ -34,10 +33,7 @@ export function request<T = unknown>(
   });
 }
 
-export function respond(
-  event: RequestEvent,
-  handle: StateHandle<unknown>,
-): void {
+export function respond(event: RequestEvent, handle: unknown): void {
   event.stopPropagation();
   const target = event.target as HTMLElement;
   target.dispatchEvent(

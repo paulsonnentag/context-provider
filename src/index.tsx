@@ -1,14 +1,51 @@
-import { render } from "solid-js/web";
-import { PatchworkView } from "./core/PatchworkView";
-import { HelloUser } from "./examples/HelloUser";
-import { AccountProvider } from "./examples/AccountProvider";
+import { createSignal, For } from "solid-js";
+import { Dynamic, render } from "solid-js/web";
+import HelloUser from "./examples/HelloUser";
+import Counter from "./examples/Counter";
+import type { Example } from "./examples/types";
 import "./styles.css";
 
-const App = () => (
-  <PatchworkView component={AccountProvider}>
-    <PatchworkView component={HelloUser} />
-  </PatchworkView>
-);
+const examples: Example[] = [HelloUser, Counter];
+
+const App = () => {
+  const [activeIdx, setActiveIdx] = createSignal(0);
+  const active = () => examples[activeIdx()];
+
+  return (
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">Patchwork</div>
+          <div class="sidebar-subtitle">Reference examples</div>
+        </div>
+        <nav class="sidebar-nav">
+          <For each={examples}>
+            {(example, i) => (
+              <button
+                type="button"
+                class="sidebar-item"
+                classList={{ active: i() === activeIdx() }}
+                onClick={() => setActiveIdx(i())}
+              >
+                <span class="sidebar-item-name">{example.name}</span>
+                <span class="sidebar-item-desc">{example.description}</span>
+              </button>
+            )}
+          </For>
+        </nav>
+      </aside>
+      <main class="content">
+        <header class="content-header">
+          <h1>{active().name}</h1>
+          <p>{active().description}</p>
+        </header>
+        <section class="content-stage">
+          <Dynamic component={active().component} />
+        </section>
+      </main>
+    </div>
+  );
+};
 
 const root = document.getElementById("root");
 if (!root) {

@@ -1,5 +1,3 @@
-import type { StateHandle } from "./state-handle";
-
 export type Selector = {
   type: string;
 };
@@ -13,7 +11,7 @@ export type RequestEventDetail = {
 
 export type ResponseEventDetail = {
   id: string;
-  handle: StateHandle<unknown>;
+  handle: unknown;
 };
 
 export type RequestEvent = CustomEvent<RequestEventDetail>;
