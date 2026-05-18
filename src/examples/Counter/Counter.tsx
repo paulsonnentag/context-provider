@@ -1,10 +1,10 @@
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
-import type { DocMount } from "../../core/withDocHandle";
+import { withDocHandle } from "../../core/withDocHandle";
 
 export type CounterDoc = { count: number };
 
-export const Counter: DocMount<CounterDoc> = ({ element, handle }) => {
+export const Counter = withDocHandle<CounterDoc>(({ element, handle }) => {
   const [count, setCount] = createSignal(handle.doc().count);
   const onChange = () => setCount(handle.doc().count);
   handle.on("change", onChange);
@@ -25,4 +25,4 @@ export const Counter: DocMount<CounterDoc> = ({ element, handle }) => {
     handle.off("change", onChange);
     dispose();
   };
-};
+});

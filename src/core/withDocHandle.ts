@@ -4,12 +4,12 @@ import { request } from "./provider";
 import type { Component } from "./types";
 import { Doc } from "./doc";
 
-export type DocMountArgs<T> = {
+type DocMountArgs<T> = {
   element: HTMLElement;
   handle: DocHandle<T>;
 };
 
-export type DocMount<T> = (
+type DocMount<T> = (
   args: DocMountArgs<T>,
 ) => Promise<() => void> | (() => void);
 

@@ -186,3 +186,68 @@ body {
 .counter:active {
   transform: translateY(1px);
 }
+
+.text-editor-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  /* Reserve a gutter on the right so the floating comment button has its own
+     dedicated space outside the editor and can never overlap text. */
+  padding-right: 48px;
+}
+
+.text-editor {
+  font: inherit;
+  font-size: 1rem;
+  width: 100%;
+  min-height: 220px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+  color: #1f1f1f;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.text-editor:focus {
+  border-color: #d4d4d4;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.comment-button {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #ececec;
+  border-radius: 50%;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.08s, color 0.15s, border-color 0.15s;
+}
+
+/* Author's display: inline-flex above wins over the UA's [hidden] { display: none },
+   so make the hidden state explicit here. */
+.comment-button[hidden] {
+  display: none;
+}
+
+.comment-button:hover {
+  color: #1f1f1f;
+  border-color: #d4d4d4;
+}
+
+.comment-button:active {
+  transform: translateY(1px);
+}

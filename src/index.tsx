@@ -2,10 +2,11 @@ import { createSignal, For } from "solid-js";
 import { Dynamic, render } from "solid-js/web";
 import HelloUser from "./examples/HelloUser";
 import Counter from "./examples/Counter";
+import TextEditor from "./examples/TextEditor";
 import type { Example } from "./examples/types";
 import "./styles.css";
 
-const examples: Example[] = [HelloUser, Counter];
+const examples: Example[] = [HelloUser, Counter, TextEditor];
 
 const App = () => {
   const [activeIdx, setActiveIdx] = createSignal(0);
@@ -14,10 +15,6 @@ const App = () => {
   return (
     <div class="app">
       <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-title">Patchwork</div>
-          <div class="sidebar-subtitle">Reference examples</div>
-        </div>
         <nav class="sidebar-nav">
           <For each={examples}>
             {(example, i) => (
