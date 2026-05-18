@@ -1,10 +1,10 @@
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { request } from "../core/provider";
-import type { MountableComponent } from "../core/types";
+import type { Component } from "../core/types";
 import { Account, type AccountState } from "./account";
 
-export const HelloUser: MountableComponent = async (element) => {
+export const HelloUser: Component = async (element) => {
   const handle = await request<AccountState>(element, Account);
 
   const [name, setName] = createSignal(handle.value.name);

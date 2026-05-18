@@ -3,17 +3,17 @@ import {
   createSignal,
   onCleanup,
   Show,
-  type Component,
+  type Component as SolidComponent,
   type JSX,
 } from "solid-js";
-import type { MountableComponent } from "./types";
+import type { Component } from "./types";
 
 type Props = {
-  component: MountableComponent;
+  component: Component;
   children?: JSX.Element;
 };
 
-export const PatchworkView: Component<Props> = (props) => {
+export const PatchworkView: SolidComponent<Props> = (props) => {
   const [ready, setReady] = createSignal(false);
   let container!: HTMLDivElement;
 

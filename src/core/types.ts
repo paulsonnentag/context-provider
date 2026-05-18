@@ -4,7 +4,7 @@ export type Selector = {
   type: string;
 };
 
-export type MountableComponent = (element: HTMLElement) => Promise<() => void>;
+export type Component = (element: HTMLElement) => Promise<() => void>;
 
 export type RequestEventDetail = {
   id: string;
