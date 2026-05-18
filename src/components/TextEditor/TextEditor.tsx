@@ -4,7 +4,8 @@ import { EditorView, minimalSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { getCursor } from "@automerge/automerge";
 import { automergeSyncPlugin } from "@automerge/automerge-codemirror";
-import { withDocHandle } from "../../core/withDocHandle";
+import type { DocHandle } from "@automerge/automerge-repo";
+import { withHandle } from "../../core/withHandle";
 import { request } from "../../core/provider";
 import {
   Comments,
@@ -25,7 +26,7 @@ type TextCommentTarget = {
 const newId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-export const TextEditor = withDocHandle<TextDoc>(async ({ element, handle }) => {
+export const TextEditor = withHandle<DocHandle<TextDoc>>(async ({ element, handle }) => {
   const commentsHandle = await request<ScopedCommentsHandle>(element, Comments);
 
   const [comments, setComments] = createSignal<Comment[]>(commentsHandle.value);

@@ -3,7 +3,7 @@ import { CounterExample } from "./setup";
 
 const example: Example = {
   name: "Counter",
-  description: "In-memory Automerge counter resolved through withDocHandle.",
+  description: "In-memory Automerge counter resolved through withHandle.",
   component: CounterExample,
 };
 

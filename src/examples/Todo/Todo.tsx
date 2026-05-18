@@ -1,6 +1,7 @@
 import { createSignal, For, Show } from "solid-js";
 import { render } from "solid-js/web";
-import { withDocHandle } from "../../core/withDocHandle";
+import type { DocHandle } from "@automerge/automerge-repo";
+import { withHandle } from "../../core/withHandle";
 
 export type TodoItem = {
   id: string;
@@ -15,7 +16,7 @@ export type TodoDoc = {
 const newId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-export const Todo = withDocHandle<TodoDoc>(({ element, handle }) => {
+export const Todo = withHandle<DocHandle<TodoDoc>>(({ element, handle }) => {
   const [doc, setDoc] = createSignal(handle.doc());
   const onChange = () => setDoc({ ...handle.doc() });
   handle.on("change", onChange);

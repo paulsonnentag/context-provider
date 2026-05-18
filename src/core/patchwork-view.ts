@@ -1,4 +1,5 @@
 import type { JSX } from "solid-js";
+import type { Handle } from "./handles";
 import type { Component } from "./types";
 
 export type PatchworkLifecycleDetail = { url: string | null };
@@ -6,6 +7,7 @@ export type PatchworkLifecycleEvent = CustomEvent<PatchworkLifecycleDetail>;
 
 export class PatchworkViewElement extends HTMLElement {
   #component?: Component;
+  #handle?: Handle<unknown>;
   #unmount?: () => void;
   #controller?: AbortController;
   #urlObserver?: MutationObserver;
@@ -27,7 +29,7 @@ export class PatchworkViewElement extends HTMLElement {
   // Reflect `url` between property and attribute so JSX bindings like
   // `<patchwork-view url={x}>` work regardless of whether the framework
   // assigns it as a property or as an attribute. Both paths end up at the
-  // attribute, which is what consumers like withDocHandle observe.
+  // attribute, which is what consumers like withHandle observe.
   get url(): string | null {
     return this.getAttribute("url");
   }
@@ -35,6 +37,18 @@ export class PatchworkViewElement extends HTMLElement {
   set url(value: string | null | undefined) {
     if (value == null) this.removeAttribute("url");
     else this.setAttribute("url", String(value));
+  }
+
+  // A handle injected by a parent. withHandle observes patchwork:handle-change
+  // and re-binds the inner component on swap, symmetric to the url path.
+  get handle(): Handle<unknown> | undefined {
+    return this.#handle;
+  }
+
+  set handle(next: Handle<unknown> | undefined) {
+    if (this.#handle === next) return;
+    this.#handle = next;
+    this.dispatchEvent(new CustomEvent("patchwork:handle-change"));
   }
 
   connectedCallback() {
@@ -137,6 +151,7 @@ declare module "solid-js" {
     interface IntrinsicElements {
       "patchwork-view": JSX.HTMLAttributes<PatchworkViewElement> & {
         "prop:component"?: Component;
+        "prop:handle"?: Handle<unknown>;
         url?: string;
       };
     }

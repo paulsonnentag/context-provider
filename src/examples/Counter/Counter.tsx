@@ -1,10 +1,11 @@
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
-import { withDocHandle } from "../../core/withDocHandle";
+import type { DocHandle } from "@automerge/automerge-repo";
+import { withHandle } from "../../core/withHandle";
 
 export type CounterDoc = { count: number };
 
-export const Counter = withDocHandle<CounterDoc>(({ element, handle }) => {
+export const Counter = withHandle<DocHandle<CounterDoc>>(({ element, handle }) => {
   const [count, setCount] = createSignal(handle.doc().count);
   const onChange = () => setCount(handle.doc().count);
   handle.on("change", onChange);

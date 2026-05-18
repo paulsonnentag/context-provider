@@ -1,7 +1,8 @@
 import { createSignal, For, Show, type JSX } from "solid-js";
 import { render } from "solid-js/web";
 import type { AutomergeUrl } from "@automerge/automerge-repo";
-import { withDocHandle } from "../../core/withDocHandle";
+import type { DocHandle } from "@automerge/automerge-repo";
+import { withHandle } from "../../core/withHandle";
 import type { Component } from "../../core/types";
 import { Counter } from "../../examples/Counter/Counter";
 
@@ -28,7 +29,7 @@ function viewForShape(shape: Shape): Component {
   }
 }
 
-export const SpatialCanvas = withDocHandle<CanvasDoc>(({ element, handle }) => {
+export const SpatialCanvas = withHandle<DocHandle<CanvasDoc>>(({ element, handle }) => {
   const [doc, setDoc] = createSignal(handle.doc());
   const onChange = () => setDoc({ ...handle.doc() });
   handle.on("change", onChange);
