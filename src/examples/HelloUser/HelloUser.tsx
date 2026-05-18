@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { request } from "../../core/provider";
-import type { StateHandle } from "../../core/state-handle";
+import type { StateHandle } from "../../core/handles";
 import type { Component, Selector } from "../../core/types";
 
 export type AccountState = {

@@ -1,10 +1,10 @@
 import EventEmitter from "eventemitter3";
+import type { Handle, HandleEvents } from "./Handle";
 
-export type StateHandleEvents = {
-  change: () => void;
-};
-
-export class StateHandle<T> extends EventEmitter<StateHandleEvents> {
+export class StateHandle<T>
+  extends EventEmitter<HandleEvents>
+  implements Handle<T>
+{
   #value: T;
 
   constructor(initial: T) {

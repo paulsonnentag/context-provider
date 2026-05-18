@@ -1,7 +1,7 @@
 import type { Component as SolidComponent } from "solid-js";
 import "../../core/patchwork-view";
 import { respond } from "../../core/provider";
-import { StateHandle } from "../../core/state-handle";
+import { StateHandle } from "../../core/handles";
 import type { Component, RequestEvent } from "../../core/types";
 import {
   HelloUser,

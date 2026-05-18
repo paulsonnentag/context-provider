@@ -35,7 +35,7 @@ export const commentButtonPlugin = (
           onComment({ from: sel.from, to: sel.to, selectedText }, view);
         });
         view.dom.appendChild(this.button);
-        this.reposition();
+        this.scheduleReposition();
       }
 
       update(update: ViewUpdate) {
@@ -45,26 +45,32 @@ export const commentButtonPlugin = (
           update.viewportChanged ||
           update.geometryChanged
         ) {
-          this.reposition();
+          this.scheduleReposition();
         }
       }
 
-      reposition() {
-        const sel = this.view.state.selection.main;
-        if (sel.empty) {
-          this.button.hidden = true;
-          return;
-        }
-        const coords = this.view.coordsAtPos(sel.from);
-        if (!coords) {
-          this.button.hidden = true;
-          return;
-        }
-        const editorRect = this.view.dom.getBoundingClientRect();
-        const lineCenter = (coords.top + coords.bottom) / 2 - editorRect.top;
-        // 13 = half the 26px button height.
-        this.button.style.top = `${lineCenter - 13}px`;
-        this.button.hidden = false;
+      scheduleReposition() {
+        // Reading layout (coordsAtPos / getBoundingClientRect) is not allowed
+        // during an editor update, so defer it to a measure phase.
+        this.view.requestMeasure({
+          read: (view) => {
+            const sel = view.state.selection.main;
+            if (sel.empty) return null;
+            const coords = view.coordsAtPos(sel.from);
+            if (!coords) return null;
+            const editorRect = view.dom.getBoundingClientRect();
+            return (coords.top + coords.bottom) / 2 - editorRect.top;
+          },
+          write: (lineCenter) => {
+            if (lineCenter == null) {
+              this.button.hidden = true;
+              return;
+            }
+            // 13 = half the 26px button height.
+            this.button.style.top = `${lineCenter - 13}px`;
+            this.button.hidden = false;
+          },
+        });
       }
 
       destroy() {

@@ -3,7 +3,7 @@ import { render } from "solid-js/web";
 import type { AutomergeUrl } from "@automerge/automerge-repo";
 import { withDocHandle } from "../../core/withDocHandle";
 import type { Component } from "../../core/types";
-import { Counter } from "../Counter/Counter";
+import { Counter } from "../../examples/Counter/Counter";
 
 export type CounterShape = {
   type: "counter";

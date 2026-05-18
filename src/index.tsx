@@ -2,12 +2,12 @@ import { createSignal, For } from "solid-js";
 import { Dynamic, render } from "solid-js/web";
 import HelloUser from "./examples/HelloUser";
 import Counter from "./examples/Counter";
-import TextEditor from "./examples/TextEditor";
-import SpatialCanvas from "./examples/SpatialCanvas";
+import Todo from "./examples/Todo";
+import Comments from "./examples/Comments";
 import type { Example } from "./examples/types";
 import "./styles.css";
 
-const examples: Example[] = [HelloUser, Counter, TextEditor, SpatialCanvas];
+const examples: Example[] = [HelloUser, Counter, Todo, Comments];
 
 const App = () => {
   const [activeIdx, setActiveIdx] = createSignal(0);

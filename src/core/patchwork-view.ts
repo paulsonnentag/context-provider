@@ -1,10 +1,18 @@
 import type { JSX } from "solid-js";
 import type { Component } from "./types";
 
+export type PatchworkLifecycleDetail = { url: string | null };
+export type PatchworkLifecycleEvent = CustomEvent<PatchworkLifecycleDetail>;
+
 export class PatchworkViewElement extends HTMLElement {
   #component?: Component;
   #unmount?: () => void;
   #controller?: AbortController;
+  #urlObserver?: MutationObserver;
+  // Tracks the last url we emitted patchwork:mount for, so url attribute
+  // changes can emit a matched unmount/mount pair and disconnection can emit
+  // a final unmount even if the attribute was already removed.
+  #activeUrl: string | null = null;
 
   get component(): Component | undefined {
     return this.#component;
@@ -30,10 +38,27 @@ export class PatchworkViewElement extends HTMLElement {
   }
 
   connectedCallback() {
+    // Observe url changes so providers tracking mounted urls can react to
+    // the inner component being repointed without us tearing it down.
+    this.#urlObserver = new MutationObserver(() => this.#syncLifecycle());
+    this.#urlObserver.observe(this, {
+      attributes: true,
+      attributeFilter: ["url"],
+    });
+
+    // Emit patchwork:mount synchronously, BEFORE kicking off the (async)
+    // inner mount. This lets the inner component's first request find the
+    // provider's url already tracked, since providers register their
+    // listeners synchronously inside their own (already-running) mount.
+    this.#syncLifecycle();
+
     if (this.#component) void this.#mount();
   }
 
   disconnectedCallback() {
+    this.#urlObserver?.disconnect();
+    this.#urlObserver = undefined;
+    this.#emitUnmount();
     this.#teardown();
   }
 
@@ -62,6 +87,44 @@ export class PatchworkViewElement extends HTMLElement {
   async #remount() {
     this.#teardown();
     await this.#mount();
+  }
+
+  // Diff the current url attribute against the last one we announced and
+  // emit unmount/mount events as needed.
+  #syncLifecycle() {
+    const next = this.getAttribute("url");
+    if (next === this.#activeUrl) return;
+
+    if (this.#activeUrl != null) {
+      this.dispatchEvent(
+        new CustomEvent<PatchworkLifecycleDetail>("patchwork:unmount", {
+          detail: { url: this.#activeUrl },
+          bubbles: true,
+        }),
+      );
+    }
+
+    this.#activeUrl = next;
+
+    if (next != null) {
+      this.dispatchEvent(
+        new CustomEvent<PatchworkLifecycleDetail>("patchwork:mount", {
+          detail: { url: next },
+          bubbles: true,
+        }),
+      );
+    }
+  }
+
+  #emitUnmount() {
+    if (this.#activeUrl == null) return;
+    this.dispatchEvent(
+      new CustomEvent<PatchworkLifecycleDetail>("patchwork:unmount", {
+        detail: { url: this.#activeUrl },
+        bubbles: true,
+      }),
+    );
+    this.#activeUrl = null;
   }
 }
 
