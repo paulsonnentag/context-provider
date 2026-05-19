@@ -8,47 +8,44 @@ import {
   CommentsSidebar,
   type Comment,
 } from "../../providers/Comments";
-import { SpatialCanvas, type CanvasDoc } from "../../components/SpatialCanvas/SpatialCanvas";
+import {
+  SpatialCanvas,
+  type CanvasDoc,
+} from "../../components/SpatialCanvas/SpatialCanvas";
 import type { TextDoc } from "../../components/TextEditor/TextEditor";
 
 const repo = new Repo({});
 const RepoProvider = createRepoProvider(repo);
 
 const docAUrl = repo.create<TextDoc>({
-  text: [
-    "Document A.",
-    "Select a sentence and click the comment button that appears in the",
-    "right gutter — the comment is stored under @patchwork.comments inside",
-    "this document.",
-  ].join("\n"),
+  text:
+    "Puffins\n\n" +
+    'Atlantic puffins are small, stocky seabirds that spend most of their lives bobbing on the open ocean and only come ashore each spring to breed on cliff-top colonies in the North Atlantic. Their black-and-white plumage and oversized, candy-striped beaks have earned them the nickname "clowns of the sea" — but that beak is also a remarkably good fishing tool: backward-facing spines on a puffin\'s tongue and palate let it pin one slippery fish in place while it dives again, so a single bird can return to its burrow with a dozen sand eels still dangling crosswise in its mouth.',
 }).url;
 
 const docBUrl = repo.create<TextDoc>({
-  text: [
-    "Document B.",
-    "A second text document sharing the same canvas. Comments added here",
-    "land in B's @patchwork.comments and stream into the sidebar alongside",
-    "A's, grouped by url.",
-  ].join("\n"),
+  text:
+    "Robins\n\n" +
+    "The American robin is one of the most familiar birds across North America — a grey-backed thrush with a brick-red breast and a clear, rolling dawn song. Robins forage on lawns for earthworms in the cool of morning and switch to berries later in the day, which is part of how they manage to migrate so far. To stay on course they appear to do something stranger than navigation by landmarks: light-sensitive pigments in their eyes react to Earth's magnetic field, effectively giving them a faint compass overlay on whatever they happen to be looking at.",
 }).url;
 
 const canvasUrl = repo.create<CanvasDoc>({
   shapes: {
     a: {
       type: "text",
-      x: 32,
-      y: 32,
-      width: 360,
-      height: 240,
+      x: 48,
+      y: 48,
+      width: 480,
+      height: 400,
       zIndex: 1,
       url: docAUrl,
     },
     b: {
       type: "text",
-      x: 440,
-      y: 120,
-      width: 360,
-      height: 240,
+      x: 600,
+      y: 200,
+      width: 480,
+      height: 400,
       zIndex: 2,
       url: docBUrl,
     },
