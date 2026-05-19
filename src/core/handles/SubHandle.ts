@@ -1,37 +1,8 @@
 import EventEmitter from "eventemitter3";
 import type * as A from "@automerge/automerge";
 import type { UrlHeads } from "@automerge/automerge-repo";
-import type { Handle, HandleEvents } from "./Handle";
-
-type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7];
-
-export type Path<T, D extends number = 6> = [D] extends [never]
-  ? never
-  : T extends readonly (infer U)[]
-    ? readonly [number] | readonly [number, ...Path<U, Prev[D]>]
-    : T extends object
-      ? {
-          [K in keyof T & (string | number)]:
-            | readonly [K]
-            | readonly [K, ...Path<T[K], Prev[D]>];
-        }[keyof T & (string | number)]
-      : never;
-
-export type ValueAtPath<T, P extends readonly unknown[]> = P extends readonly []
-  ? T
-  : P extends readonly [infer K, ...infer R]
-    ? K extends keyof T
-      ? R extends readonly unknown[]
-        ? ValueAtPath<T[K], R>
-        : never
-      : K extends number
-        ? T extends readonly (infer U)[]
-          ? R extends readonly unknown[]
-            ? ValueAtPath<U, R>
-            : never
-          : never
-        : never
-    : never;
+import { HANDLE_BRAND, type Handle, type HandleEvents } from "./Handle";
+import type { Path, ValueAtPath } from "./paths";
 
 // True iff the patch path and the sub-path overlap (one is a prefix of the
 // other). A patch above us is a replacement that includes our value; a patch
@@ -47,16 +18,18 @@ const overlaps = (
   return true;
 };
 
-export class SubHandle<T, S>
+export class SubHandle<S>
   extends EventEmitter<HandleEvents>
   implements Handle<S>
 {
-  #parent: Handle<T>;
+  readonly [HANDLE_BRAND] = true as const;
+
+  #parent: Handle<unknown>;
   #path: readonly (string | number)[];
   #prevHeads: UrlHeads | undefined;
   #onParentChange: () => void;
 
-  constructor(parent: Handle<T>, path: readonly (string | number)[]) {
+  constructor(parent: Handle<unknown>, path: readonly (string | number)[]) {
     super();
     this.#parent = parent;
     this.#path = path;
@@ -113,10 +86,37 @@ export class SubHandle<T, S>
       if (cursor == null || !(last in (cursor as object))) {
         throw new Error(`SubHandle: missing leaf "${String(last)}"`);
       }
-      mutator(
-        (cursor as Record<string | number, unknown>)[last] as S,
-      );
+      mutator((cursor as Record<string | number, unknown>)[last] as S);
     });
+  }
+
+  ref<const P extends Path<S>>(...path: P): Handle<ValueAtPath<S, P>>;
+  ref<const P extends Path<S>>(
+    path: P,
+    defaultValue: ValueAtPath<S, P>,
+  ): Handle<ValueAtPath<S, P>>;
+  ref(...args: unknown[]): Handle<unknown> {
+    // Compose with our parent: a SubHandle of a SubHandle becomes a single
+    // SubHandle over the original root with the concatenated path. The
+    // tuple+default form forwards to the parent so that whichever concrete
+    // handle sits at the root performs the vivify in its own world.
+    if (args.length === 2 && Array.isArray(args[0])) {
+      const subPath = args[0] as readonly (string | number)[];
+      const defaultValue = args[1];
+      const fullPath: readonly (string | number)[] = [
+        ...this.#path,
+        ...subPath,
+      ];
+      const parentRef = (this.#parent as {
+        ref: (...a: unknown[]) => Handle<unknown>;
+      }).ref;
+      return parentRef.call(this.#parent, fullPath, defaultValue);
+    }
+    const spreadPath = args as readonly (string | number)[];
+    return new SubHandle<unknown>(this.#parent, [
+      ...this.#path,
+      ...spreadPath,
+    ]);
   }
 
   // Forward the diff capability up to the root so nested SubHandles get
@@ -136,14 +136,4 @@ export class SubHandle<T, S>
     this.#parent.off("change", this.#onParentChange);
     this.removeAllListeners();
   }
-}
-
-export function subHandle<T, const P extends Path<T>>(
-  parent: Handle<T>,
-  path: P,
-): SubHandle<T, ValueAtPath<T, P>> {
-  return new SubHandle<T, ValueAtPath<T, P>>(
-    parent,
-    path as unknown as readonly (string | number)[],
-  );
 }

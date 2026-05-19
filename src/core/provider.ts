@@ -44,7 +44,7 @@ export function request<T = unknown>(
 
 export function respond(
   event: RequestEvent,
-  handle: Handle<unknown> | null,
+  handle: Handle<any> | null,
 ): void {
   event.stopPropagation();
   const target = event.target as HTMLElement;

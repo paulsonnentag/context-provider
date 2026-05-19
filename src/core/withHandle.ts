@@ -18,7 +18,7 @@ type Mount<H> = (args: MountArgs<H>) => Promise<() => void> | (() => void);
 // (1) takes precedence; if both are present, (1) wins and we warn.
 // Re-binds on either source changing (handle swap or url attribute change).
 export const withHandle =
-  <H extends Handle<unknown>>(mount: Mount<H>): Component =>
+  <H extends Handle<any>>(mount: Mount<H>): Component =>
   async (element) => {
     let unmountInner: (() => void) | undefined;
     let currentKey: unknown = Symbol("initial");

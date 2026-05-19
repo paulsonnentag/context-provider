@@ -1,7 +1,7 @@
 import type { Component as SolidComponent } from "solid-js";
 import { Repo, type AutomergeUrl } from "@automerge/automerge-repo";
 import "@/core/patchwork-view";
-import { MapHandle } from "@/core/handles";
+import { StateHandle } from "@/core/handles";
 import { FallbackProvider } from "@/providers/FallbackProvider";
 import { RepoProvider } from "@/providers/RepoProvider";
 import {
@@ -54,8 +54,7 @@ const canvasUrl = repo.create<CanvasDoc>({
 }).url;
 
 export const CommentsExample: SolidComponent = () => {
-  // Shared aggregate: CommentsProvider populates it, CommentsSidebar reads it.
-  const commentsMap = new MapHandle<AutomergeUrl, Comment[]>();
+  const commentsState = new StateHandle<Record<AutomergeUrl, Comment[]>>({});
 
   return (
     <patchwork-view prop:component={FallbackProvider}>
@@ -63,13 +62,13 @@ export const CommentsExample: SolidComponent = () => {
         <div class="comments-example">
           <patchwork-view
             prop:component={CommentsProvider}
-            prop:handle={commentsMap}
+            prop:handle={commentsState}
           >
             <patchwork-view prop:component={SpatialCanvas} url={canvasUrl} />
           </patchwork-view>
           <patchwork-view
             prop:component={CommentsSidebar}
-            prop:handle={commentsMap}
+            prop:handle={commentsState}
           />
         </div>
       </patchwork-view>

@@ -7,7 +7,7 @@ export type PatchworkLifecycleEvent = CustomEvent<PatchworkLifecycleDetail>;
 
 export class PatchworkViewElement extends HTMLElement {
   #component?: Component;
-  #handle?: Handle<unknown>;
+  #handle?: Handle<any>;
   #unmount?: () => void;
   #controller?: AbortController;
   #urlObserver?: MutationObserver;
@@ -41,11 +41,11 @@ export class PatchworkViewElement extends HTMLElement {
 
   // A handle injected by a parent. withHandle observes patchwork:handle-change
   // and re-binds the inner component on swap, symmetric to the url path.
-  get handle(): Handle<unknown> | undefined {
+  get handle(): Handle<any> | undefined {
     return this.#handle;
   }
 
-  set handle(next: Handle<unknown> | undefined) {
+  set handle(next: Handle<any> | undefined) {
     if (this.#handle === next) return;
     this.#handle = next;
     this.dispatchEvent(new CustomEvent("patchwork:handle-change"));
@@ -151,7 +151,7 @@ declare module "solid-js" {
     interface IntrinsicElements {
       "patchwork-view": JSX.HTMLAttributes<PatchworkViewElement> & {
         "prop:component"?: Component;
-        "prop:handle"?: Handle<unknown>;
+        "prop:handle"?: Handle<any>;
         url?: string;
       };
     }
