@@ -6,20 +6,25 @@ import { withHandle } from "@/core/withHandle";
 import type { Component } from "@/core/types";
 import { Counter } from "@/examples/Counter/Counter";
 import { TextEditor } from "@/components/TextEditor/TextEditor";
+import { MapView } from "@/components/MapView/MapView";
 
-type BaseShape = {
+type Base = {
   x: number;
   y: number;
   width: number;
   height: number;
   zIndex: number;
-  url: AutomergeUrl;
 };
 
-export type CounterShape = BaseShape & { type: "counter" };
-export type TextShape = BaseShape & { type: "text" };
+type DocShape = Base & { url: AutomergeUrl };
 
-export type Shape = CounterShape | TextShape;
+export type CounterShape = DocShape & { type: "counter" };
+export type TextShape = DocShape & { type: "text" };
+// MapShape has no url: it is a consumer that asks the GeolocationProvider for
+// the aggregated locations across every doc in scope, not a view onto a doc.
+export type MapShape = Base & { type: "map" };
+
+export type Shape = CounterShape | TextShape | MapShape;
 
 export type CanvasDoc = {
   shapes: { [id: string]: Shape };
@@ -31,8 +36,13 @@ function viewForShape(shape: Shape): Component {
       return Counter;
     case "text":
       return TextEditor;
+    case "map":
+      return MapView;
   }
 }
+
+const shapeUrl = (shape: Shape): AutomergeUrl | undefined =>
+  shape.type === "map" ? undefined : shape.url;
 
 export const SpatialCanvas = withHandle<DocHandle<CanvasDoc>>(({ element, handle }) => {
   const [doc, setDoc] = createSignal(handle.doc());
@@ -88,7 +98,7 @@ export const SpatialCanvas = withHandle<DocHandle<CanvasDoc>>(({ element, handle
                   >
                     <patchwork-view
                       prop:component={viewForShape(s())}
-                      url={s().url}
+                      url={shapeUrl(s())}
                     />
                   </Panel>
                 )}

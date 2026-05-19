@@ -8,9 +8,20 @@ import { StateHandle } from "./handles";
 import type { PatchworkLifecycleEvent } from "./patchwork-view";
 import { request } from "./provider";
 
+// Same shape as the underlying StateHandle, but `.ref(url)` is typed to the
+// mounted DocHandle<T> rather than the wrapped Handle<T>. The snapshot
+// (`.value`) is still keyed url -> doc shape, because mounting unwraps the
+// handle's value into the parent snapshot.
+export type MountedDocsHandle<T> = Omit<
+  StateHandle<Record<AutomergeUrl, T>>,
+  "ref"
+> & {
+  ref(url: AutomergeUrl): DocHandle<T>;
+};
+
 export function subscribeToDocsIn<T = unknown>(
   element: HTMLElement,
-): StateHandle<Record<AutomergeUrl, T>> {
+): MountedDocsHandle<T> {
   const state = new StateHandle<Record<AutomergeUrl, T>>({});
   const refs = new Map<AutomergeUrl, number>();
   const gen = new Map<AutomergeUrl, number>();
@@ -32,8 +43,11 @@ export function subscribeToDocsIn<T = unknown>(
       );
       return;
     }
+    // The write proxy detects the brand on `dh` and mounts it, unwrapping
+    // `dh.value` into the snapshot slot. This cast is the type-system price
+    // of going through a slot typed as T.
     state.change((s) => {
-      s[url] = dh as unknown as T;
+      (s as Record<AutomergeUrl, DocHandle<T>>)[url] = dh;
     });
   };
 
@@ -81,5 +95,5 @@ export function subscribeToDocsIn<T = unknown>(
     baseDestroy();
   };
 
-  return state;
+  return state as unknown as MountedDocsHandle<T>;
 }

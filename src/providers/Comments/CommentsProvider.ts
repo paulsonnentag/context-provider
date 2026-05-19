@@ -22,10 +22,9 @@ export type PatchworkMetadata = {
   };
 };
 
-export const Comments = { type: "comments" } as const satisfies Selector;
-export type CommentsSelector = typeof Comments;
+export const Comments: Selector = { type: "comments" };
 
-export const isCommentsSelector = (s: Selector): s is CommentsSelector =>
+export const isCommentsSelector = (s: Selector): boolean =>
   s.type === Comments.type;
 
 export const CommentsProvider = withHandle<
@@ -38,7 +37,7 @@ export const CommentsProvider = withHandle<
   const sync = () => {
     for (const url of Object.keys(docsHandle.value) as AutomergeUrl[]) {
       if (url in commentsHandle.value) continue;
-      const docHandle = docsHandle.ref(url) as DocHandle<PatchworkMetadata>;
+      const docHandle = docsHandle.ref(url);
       const sub = docHandle.ref(["@patchwork", "comments"], []);
       commentsHandle.change((s) => {
         s[url] = sub as unknown as Comment[];

@@ -3,6 +3,7 @@ import { Dynamic, render } from "solid-js/web";
 import HelloUser from "@/examples/HelloUser";
 import Counter from "@/examples/Counter";
 import Comments from "@/examples/Comments";
+import Embark from "@/examples/Embark";
 import type { Example } from "@/examples/types";
 import {
   CodeViewer,
@@ -54,6 +55,7 @@ const examples: Entry[] = [
   { example: HelloUser, folder: "HelloUser" },
   { example: Counter, folder: "Counter" },
   { example: Comments, folder: "Comments" },
+  { example: Embark, folder: "Embark" },
 ];
 
 const App = () => {

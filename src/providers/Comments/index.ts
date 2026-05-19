@@ -3,9 +3,5 @@ export {
   CommentsProvider,
   isCommentsSelector,
 } from "./CommentsProvider";
-export type {
-  Comment,
-  CommentsSelector,
-  PatchworkMetadata,
-} from "./CommentsProvider";
+export type { Comment, PatchworkMetadata } from "./CommentsProvider";
 export { CommentsSidebar } from "./CommentsSidebar";

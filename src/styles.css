@@ -1,3 +1,5 @@
+@import "maplibre-gl/dist/maplibre-gl.css";
+
 * {
   box-sizing: border-box;
 }
@@ -187,8 +189,10 @@ body {
 }
 
 /* The Comments example uses an overlay sidebar and wants the canvas to span
-   the full stage area; drop the stage padding when it is active. */
-.content-stage:has(.comments-example) {
+   the full stage area; drop the stage padding when it is active. The Embark
+   example uses the same full-bleed canvas treatment. */
+.content-stage:has(.comments-example),
+.content-stage:has(.embark-example) {
   padding: 0;
 }
 
@@ -962,4 +966,55 @@ patchwork-view {
 
 .panel-body--text .text-editor .cm-scroller {
   padding: 0.5rem 44px 0.5rem 0.75rem;
+}
+
+/* Map shapes fill the panel body, like text shapes. */
+.panel-body--map {
+  padding: 0;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.panel-body--map > patchwork-view {
+  flex: 1;
+  display: flex;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.map-view {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Embark example mirrors the Comments example's full-bleed canvas treatment,
+   minus the overlay sidebar. */
+.embark-example {
+  position: relative;
+  flex: 1;
+  display: flex;
+  width: 100%;
+  align-self: stretch;
+  min-height: 0;
+}
+
+.embark-example patchwork-view {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.embark-example > patchwork-view {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.embark-example .spatial-canvas {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
 }
