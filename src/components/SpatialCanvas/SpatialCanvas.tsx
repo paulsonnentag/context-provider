@@ -2,10 +2,10 @@ import { createSignal, For, Show, type JSX } from "solid-js";
 import { render } from "solid-js/web";
 import type { AutomergeUrl } from "@automerge/automerge-repo";
 import type { DocHandle } from "@automerge/automerge-repo";
-import { withHandle } from "../../core/withHandle";
-import type { Component } from "../../core/types";
-import { Counter } from "../../examples/Counter/Counter";
-import { TextEditor } from "../TextEditor/TextEditor";
+import { withHandle } from "@/core/withHandle";
+import type { Component } from "@/core/types";
+import { Counter } from "@/examples/Counter/Counter";
+import { TextEditor } from "@/components/TextEditor/TextEditor";
 
 type BaseShape = {
   x: number;

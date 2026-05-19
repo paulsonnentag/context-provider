@@ -1,4 +1,4 @@
-import type { Example } from "../types";
+import type { Example } from "@/examples/types";
 import { CounterExample } from "./setup";
 
 const example: Example = {

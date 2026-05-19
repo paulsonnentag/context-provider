@@ -1,5 +1,5 @@
-import { respond } from "../core/provider";
-import type { Component, RequestEvent } from "../core/types";
+import { respond } from "@/core/provider";
+import type { Component, RequestEvent } from "@/core/types";
 
 // Mount at the root of a demo to catch any `patchwork:request` that no inner
 // provider claimed (via stopPropagation) and respond with `null`. This turns

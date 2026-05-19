@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import type { DocHandle } from "@automerge/automerge-repo";
-import { withHandle } from "../../core/withHandle";
+import { withHandle } from "@/core/withHandle";
 
 export type CounterDoc = { count: number };
 

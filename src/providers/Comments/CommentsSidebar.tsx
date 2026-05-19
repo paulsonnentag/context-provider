@@ -1,8 +1,8 @@
 import { createSignal, For, Show } from "solid-js";
 import { render } from "solid-js/web";
 import type { AutomergeUrl } from "@automerge/automerge-repo";
-import type { MapHandle } from "../../core/handles";
-import { withHandle } from "../../core/withHandle";
+import type { MapHandle } from "@/core/handles";
+import { withHandle } from "@/core/withHandle";
 import type { Comment } from "./CommentsProvider";
 
 // Renders every comment aggregated by a CommentsProvider, grouped by doc url,

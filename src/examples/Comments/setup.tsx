@@ -1,19 +1,19 @@
 import type { Component as SolidComponent } from "solid-js";
 import { Repo, type AutomergeUrl } from "@automerge/automerge-repo";
-import "../../core/patchwork-view";
-import { MapHandle } from "../../core/handles";
-import { FallbackProvider } from "../../providers/FallbackProvider";
-import { RepoProvider } from "../../providers/RepoProvider";
+import "@/core/patchwork-view";
+import { MapHandle } from "@/core/handles";
+import { FallbackProvider } from "@/providers/FallbackProvider";
+import { RepoProvider } from "@/providers/RepoProvider";
 import {
   CommentsProvider,
   CommentsSidebar,
   type Comment,
-} from "../../providers/Comments";
+} from "@/providers/Comments";
 import {
   SpatialCanvas,
   type CanvasDoc,
-} from "../../components/SpatialCanvas/SpatialCanvas";
-import type { TextDoc } from "../../components/TextEditor/TextEditor";
+} from "@/components/SpatialCanvas/SpatialCanvas";
+import type { TextDoc } from "@/components/TextEditor/TextEditor";
 
 const repo = new Repo({});
 const repoProvider = RepoProvider(repo);

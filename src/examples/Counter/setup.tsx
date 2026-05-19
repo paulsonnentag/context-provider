@@ -1,8 +1,8 @@
 import type { Component as SolidComponent } from "solid-js";
 import { Repo } from "@automerge/automerge-repo";
-import "../../core/patchwork-view";
-import { FallbackProvider } from "../../providers/FallbackProvider";
-import { RepoProvider } from "../../providers/RepoProvider";
+import "@/core/patchwork-view";
+import { FallbackProvider } from "@/providers/FallbackProvider";
+import { RepoProvider } from "@/providers/RepoProvider";
 import { Counter, type CounterDoc } from "./Counter";
 
 const repo = new Repo({});

@@ -1,7 +1,7 @@
-import type { Handle } from "../core/handles";
-import { respond } from "../core/provider";
-import type { RequestEvent, Selector } from "../core/types";
-import { withHandle } from "../core/withHandle";
+import type { Handle } from "@/core/handles";
+import { respond } from "@/core/provider";
+import type { RequestEvent, Selector } from "@/core/types";
+import { withHandle } from "@/core/withHandle";
 
 export type AccountState = {
   name: string;

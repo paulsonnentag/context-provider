@@ -119,6 +119,17 @@ body {
   background: #fff;
 }
 
+.content-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.content-header-text {
+  min-width: 0;
+}
+
 .content-header h1 {
   margin: 0;
   font-size: 1.6rem;
@@ -132,6 +143,36 @@ body {
   color: #666;
   max-width: 60ch;
   line-height: 1.5;
+}
+
+.content-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: #f3f3f3;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.content-tab {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.95rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.content-tab:hover {
+  color: #1f1f1f;
+}
+
+.content-tab.active {
+  background: #1f1f1f;
+  color: #fff;
 }
 
 .content-stage {
@@ -149,6 +190,181 @@ body {
    the full stage area; drop the stage padding when it is active. */
 .content-stage:has(.comments-example) {
   padding: 0;
+}
+
+/* Code tab takes the full stage with no surrounding padding. */
+.content-stage--code {
+  padding: 0;
+}
+
+/* Code viewer */
+
+.code-viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #fff;
+}
+
+.code-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #ececec;
+  background: #fafafa;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.code-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #666;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.code-tab:hover {
+  color: #1f1f1f;
+  background: #f3f3f3;
+}
+
+.code-tab.active {
+  color: #1f1f1f;
+  background: #fff;
+  border-color: #ececec;
+}
+
+.code-tab-label {
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.7rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.code-tab:not(.active) > .code-tab-label {
+  padding-right: 0.7rem;
+}
+
+.code-tab-close {
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0 0.35rem;
+  margin-right: 0.2rem;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.code-tab-close:hover {
+  background: #ececec;
+  color: #1f1f1f;
+}
+
+.code-pre {
+  flex: 1;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow: auto;
+  background: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  tab-size: 2;
+  color: #1f1f1f;
+}
+
+.code-pre code {
+  font-family: inherit;
+}
+
+/* Prism token theme tuned to match the app's neutral palette */
+.code-pre .token.comment,
+.code-pre .token.prolog,
+.code-pre .token.doctype,
+.code-pre .token.cdata {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.code-pre .token.punctuation {
+  color: #94a3b8;
+}
+
+.code-pre .token.keyword,
+.code-pre .token.operator,
+.code-pre .token.boolean,
+.code-pre .token.null,
+.code-pre .token.undefined {
+  color: #1f1f1f;
+  font-weight: 600;
+}
+
+.code-pre .token.string,
+.code-pre .token.attr-value,
+.code-pre .token.regex,
+.code-pre .token.template-string {
+  color: #1a4fa3;
+}
+
+.code-pre .token.number {
+  color: #b45309;
+}
+
+.code-pre .token.function,
+.code-pre .token.method,
+.code-pre .token.class-name,
+.code-pre .token.maybe-class-name {
+  color: #6f42c1;
+}
+
+.code-pre .token.builtin,
+.code-pre .token.tag,
+.code-pre .token.attr-name,
+.code-pre .token.property {
+  color: #0b6e4f;
+}
+
+.code-pre .token.decorator,
+.code-pre .token.annotation {
+  color: #b45309;
+}
+
+/* Clickable import path */
+.code-import {
+  font: inherit;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+
+.code-import:hover {
+  background: rgba(26, 79, 163, 0.08);
+}
+
+.code-import:hover .token.string {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Example surface */

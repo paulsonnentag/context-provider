@@ -1,7 +1,7 @@
 import type { Repo } from "@automerge/automerge-repo";
-import { isDocSelector } from "../core/doc";
-import { respond } from "../core/provider";
-import type { Component, RequestEvent } from "../core/types";
+import { isDocSelector } from "@/core/doc";
+import { respond } from "@/core/provider";
+import type { Component, RequestEvent } from "@/core/types";
 
 export const RepoProvider =
   (repo: Repo): Component =>

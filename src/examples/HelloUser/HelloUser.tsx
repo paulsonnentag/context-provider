@@ -1,9 +1,9 @@
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
-import { request } from "../../core/provider";
-import type { StateHandle } from "../../core/handles";
-import type { Component } from "../../core/types";
-import { Account, type AccountState } from "../../providers/AccountProvider";
+import { request } from "@/core/provider";
+import type { StateHandle } from "@/core/handles";
+import type { Component } from "@/core/types";
+import { Account, type AccountState } from "@/providers/AccountProvider";
 
 export const HelloUser: Component = async (element) => {
   const handle = await request<StateHandle<AccountState>>(element, Account);

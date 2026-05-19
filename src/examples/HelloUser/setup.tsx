@@ -1,11 +1,11 @@
 import { onCleanup, type Component as SolidComponent } from "solid-js";
-import "../../core/patchwork-view";
-import { StateHandle } from "../../core/handles";
-import { FallbackProvider } from "../../providers/FallbackProvider";
+import "@/core/patchwork-view";
+import { StateHandle } from "@/core/handles";
+import { FallbackProvider } from "@/providers/FallbackProvider";
 import {
   AccountProvider,
   type AccountState,
-} from "../../providers/AccountProvider";
+} from "@/providers/AccountProvider";
 import { HelloUser } from "./HelloUser";
 
 export const HelloUserExample: SolidComponent = () => {

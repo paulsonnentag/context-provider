@@ -1,11 +1,11 @@
 import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
 import { isValidAutomergeUrl } from "@automerge/automerge-repo";
-import { Doc } from "../../core/doc";
-import { MapHandle, subHandle } from "../../core/handles";
-import type { PatchworkLifecycleEvent } from "../../core/patchwork-view";
-import { request, respond } from "../../core/provider";
-import type { RequestEvent, Selector } from "../../core/types";
-import { withHandle } from "../../core/withHandle";
+import { Doc } from "@/core/doc";
+import { MapHandle, subHandle } from "@/core/handles";
+import type { PatchworkLifecycleEvent } from "@/core/patchwork-view";
+import { request, respond } from "@/core/provider";
+import type { RequestEvent, Selector } from "@/core/types";
+import { withHandle } from "@/core/withHandle";
 
 export type Comment = {
   id: string;
