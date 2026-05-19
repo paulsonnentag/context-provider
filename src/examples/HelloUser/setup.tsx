@@ -9,12 +9,13 @@ import {
 import { HelloUser } from "./HelloUser";
 
 export const HelloUserExample: SolidComponent = () => {
-  const handle = new StateHandle<AccountState>({ name: "Alice" });
+  const names = ["grjte", "chee", "Mimi", "Alex", "pvh", "Orion", "Paul"];
 
-  const names = ["Alice", "Bob"];
+  const handle = new StateHandle<AccountState>({ name: names[0] });
+
   let idx = 0;
   const interval = setInterval(() => {
-    idx = 1 - idx;
+    idx = (idx + 1) % names.length;
     handle.change((account) => (account.name = names[idx]));
   }, 1000);
   onCleanup(() => clearInterval(interval));
