@@ -4,7 +4,7 @@ import { CommentsExample } from "./setup";
 const example: Example = {
   name: "Comments",
   description:
-    "TextEditor whose selections add comments to a CommentsProvider that aggregates them per-doc.",
+    "Two text documents on a canvas. Their comments stream into a shared sidebar via CommentsProvider.",
   component: CommentsExample,
 };
 

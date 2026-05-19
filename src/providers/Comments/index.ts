@@ -1,12 +1,11 @@
-export { CommentsProvider } from "./CommentsProvider";
 export {
   Comments,
-  ScopedCommentsHandle,
+  CommentsProvider,
   isCommentsSelector,
-} from "./comments";
+} from "./CommentsProvider";
 export type {
   Comment,
   CommentsSelector,
-  CommentsState,
   PatchworkMetadata,
-} from "./comments";
+} from "./CommentsProvider";
+export { CommentsSidebar } from "./CommentsSidebar";

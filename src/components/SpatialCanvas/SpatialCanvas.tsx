@@ -5,9 +5,9 @@ import type { DocHandle } from "@automerge/automerge-repo";
 import { withHandle } from "../../core/withHandle";
 import type { Component } from "../../core/types";
 import { Counter } from "../../examples/Counter/Counter";
+import { TextEditor } from "../TextEditor/TextEditor";
 
-export type CounterShape = {
-  type: "counter";
+type BaseShape = {
   x: number;
   y: number;
   width: number;
@@ -16,7 +16,10 @@ export type CounterShape = {
   url: AutomergeUrl;
 };
 
-export type Shape = CounterShape;
+export type CounterShape = BaseShape & { type: "counter" };
+export type TextShape = BaseShape & { type: "text" };
+
+export type Shape = CounterShape | TextShape;
 
 export type CanvasDoc = {
   shapes: { [id: string]: Shape };
@@ -26,6 +29,8 @@ function viewForShape(shape: Shape): Component {
   switch (shape.type) {
     case "counter":
       return Counter;
+    case "text":
+      return TextEditor;
   }
 }
 
@@ -77,6 +82,7 @@ export const SpatialCanvas = withHandle<DocHandle<CanvasDoc>>(({ element, handle
                     height={s().height}
                     zIndex={s().zIndex}
                     title={s().type}
+                    kind={s().type}
                     onPickUp={() => bringToFront(id)}
                     onMove={(nx, ny) => moveShape(id, nx, ny)}
                   >
@@ -108,6 +114,7 @@ type PanelProps = {
   height: number;
   zIndex: number;
   title: string;
+  kind: Shape["type"];
   onPickUp: () => void;
   onMove: (x: number, y: number) => void;
   children: JSX.Element;
@@ -164,7 +171,9 @@ const Panel = (props: PanelProps) => {
       <div class="panel-titlebar" onPointerDown={onPointerDown}>
         {props.title}
       </div>
-      <div class="panel-body">{props.children}</div>
+      <div class={`panel-body panel-body--${props.kind}`}>
+        {props.children}
+      </div>
     </div>
   );
 };

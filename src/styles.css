@@ -145,6 +145,12 @@ body {
   flex: 1;
 }
 
+/* The Comments example uses an overlay sidebar and wants the canvas to span
+   the full stage area; drop the stage padding when it is active. */
+.content-stage:has(.comments-example) {
+  padding: 0;
+}
+
 /* Example surface */
 
 patchwork-view {
@@ -356,18 +362,11 @@ patchwork-view {
   background: #fff;
 }
 
-.text-editor-shell {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  max-width: 880px;
-  align-items: flex-start;
-}
-
 .text-editor {
   flex: 1;
   min-width: 0;
   min-height: 220px;
+  width: 100%;
   background: #fff;
   border: 1px solid #ececec;
   border-radius: 12px;
@@ -376,20 +375,70 @@ patchwork-view {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.comments-panel {
-  width: 240px;
-  flex-shrink: 0;
-  background: #fff;
-  border: 1px solid #ececec;
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  padding: 0.75rem 0.85rem;
+.comments-example {
+  position: relative;
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  width: 100%;
+  /* The outer patchwork-view defaults to `align-items: center`, which would
+     leave us at content height (0, since the canvas has none of its own).
+     Force vertical stretch so the canvas fills the stage. */
+  align-self: stretch;
+  min-height: 0;
 }
 
-.comments-title {
+/* The global patchwork-view rule centers children at content height; inside
+   the comments example we want every nested patchwork-view to stretch its
+   slot so the canvas can fill the stage. */
+.comments-example patchwork-view {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.comments-example > patchwork-view:first-of-type {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+}
+
+/* Canvas is full-bleed inside the comments example: drop the rounded corners
+   and border that look right when it sits within a padded stage. */
+.comments-example .spatial-canvas {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+/* Sidebar overlays the canvas, pinned to the right and full height. */
+.comments-example > patchwork-view:last-of-type {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  flex: initial;
+  display: flex;
+  z-index: 10;
+}
+
+.comments-sidebar {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: none;
+  border-left: 1px solid #ececec;
+  border-radius: 0;
+  box-shadow: -6px 0 18px rgba(0, 0, 0, 0.06);
+  padding: 1rem 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+}
+
+.comments-sidebar-title {
   margin: 0;
   font-size: 0.85rem;
   font-weight: 600;
@@ -398,37 +447,140 @@ patchwork-view {
   letter-spacing: 0.04em;
 }
 
-.comments-list {
+.comments-sidebar-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.comments-sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding-right: 0.25rem;
+}
+
+.comments-sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.comments-sidebar-group-header {
+  font-size: 0.7rem;
+  color: #888;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+.comments-sidebar-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  max-height: 280px;
-  overflow-y: auto;
 }
 
-.comment {
+.comments-sidebar-item {
   background: #fafafa;
   border: 1px solid #ececec;
   border-radius: 8px;
   padding: 0.5rem 0.6rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
 }
 
-.comment-content {
+.comments-sidebar-item-content {
   font-size: 0.85rem;
   color: #1f1f1f;
   white-space: pre-wrap;
   word-break: break-word;
+  cursor: text;
 }
 
-.comment-meta {
+.comments-sidebar-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.comments-sidebar-item-meta {
   font-size: 0.7rem;
   color: #999;
+}
+
+.comments-sidebar-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.comments-sidebar-item:hover .comments-sidebar-item-actions,
+.comments-sidebar-item:focus-within .comments-sidebar-item-actions {
+  opacity: 1;
+}
+
+.comments-sidebar-action {
+  font: inherit;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #ececec;
+  border-radius: 6px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.comments-sidebar-action:hover {
+  background: #f3f3f3;
+  border-color: #d4d4d4;
+  color: #1f1f1f;
+}
+
+.comments-sidebar-action--primary {
+  background: #1f1f1f;
+  border-color: #1f1f1f;
+  color: #fff;
+}
+
+.comments-sidebar-action--primary:hover {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+.comments-sidebar-action--danger:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.comments-sidebar-edit {
+  font: inherit;
+  font-size: 0.85rem;
+  width: 100%;
+  min-height: 4.5em;
+  resize: vertical;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  background: #fff;
+  color: #1f1f1f;
+  outline: none;
+  line-height: 1.45;
+}
+
+.comments-sidebar-edit:focus {
+  border-color: #1f1f1f;
 }
 
 .text-editor:has(.cm-focused) {
@@ -566,4 +718,32 @@ patchwork-view {
 .panel-body patchwork-view {
   flex: initial;
   display: inline-flex;
+}
+
+/* Text shapes fill the panel body instead of being centered. */
+.panel-body--text {
+  padding: 0;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.panel-body--text > patchwork-view {
+  flex: 1;
+  display: flex;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.panel-body--text .text-editor {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.panel-body--text .text-editor .cm-scroller {
+  padding: 0.5rem 44px 0.5rem 0.75rem;
 }
