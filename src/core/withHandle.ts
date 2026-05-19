@@ -49,8 +49,16 @@ export const withHandle =
       if (injected) {
         handle = injected;
       } else if (hasUrl) {
-        handle = (await request(element, Doc(url))) as H;
+        const resolved = (await request(element, Doc(url))) as H | null;
         if (myGen !== generation) return;
+        if (!resolved) {
+          console.warn(
+            `withHandle: no provider responded for Doc(${url}). ` +
+              "Make sure a RepoProvider is mounted above this view.",
+          );
+          return;
+        }
+        handle = resolved;
       }
 
       if (!handle) return;

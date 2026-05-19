@@ -2,6 +2,7 @@ import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
 import { isValidAutomergeUrl } from "@automerge/automerge-repo";
 import { Doc } from "../../core/doc";
 import { MapHandle, subHandle } from "../../core/handles";
+import type { PatchworkLifecycleEvent } from "../../core/patchwork-view";
 import { request, respond } from "../../core/provider";
 import type { RequestEvent, Selector } from "../../core/types";
 import { withHandle } from "../../core/withHandle";
@@ -28,13 +29,12 @@ export type CommentsSelector = typeof Comments;
 export const isCommentsSelector = (s: Selector): s is CommentsSelector =>
   s.type === Comments.type;
 
-type PatchworkLifecycleDetail = { url: string | null };
-type PatchworkLifecycleEvent = CustomEvent<PatchworkLifecycleDetail>;
-
 // Parent owns the aggregate MapHandle (keyed by url) and passes it in via
 // `prop:handle`; the CommentsSidebar can subscribe to the same instance.
 export const CommentsProvider = withHandle<MapHandle<AutomergeUrl, Comment[]>>(
   async ({ element, handle: map }) => {
+    element.style.display = "contents";
+
     // Ref counts are driven by patchwork:mount/unmount lifecycle only;
     // requests just borrow the tracked sub-handle without touching refs.
     const refs = new Map<AutomergeUrl, number>();
@@ -50,6 +50,13 @@ export const CommentsProvider = withHandle<MapHandle<AutomergeUrl, Comment[]>>(
           element,
           Doc(url),
         );
+        if (!dh) {
+          console.warn(
+            `CommentsProvider: no provider responded for Doc(${url}). ` +
+              "Make sure a RepoProvider is mounted above this view.",
+          );
+          return;
+        }
         // SubHandle.change throws on missing path; vivify @patchwork.comments
         // once before vending the sub-handle.
         if (dh.value["@patchwork"]?.comments == null) {
@@ -84,33 +91,32 @@ export const CommentsProvider = withHandle<MapHandle<AutomergeUrl, Comment[]>>(
       map.delete(url);
     };
 
-    const onMount = (event: Event) => {
-      const url = (event as PatchworkLifecycleEvent).detail.url;
+    const onMount = (event: PatchworkLifecycleEvent) => {
+      const { url } = event.detail;
       if (!url || !isValidAutomergeUrl(url)) return;
       void acquire(url);
     };
 
-    const onUnmount = (event: Event) => {
-      const url = (event as PatchworkLifecycleEvent).detail.url;
+    const onUnmount = (event: PatchworkLifecycleEvent) => {
+      const { url } = event.detail;
       if (!url || !isValidAutomergeUrl(url)) return;
       release(url);
     };
 
-    const onRequest = (event: Event) => {
-      const ev = event as RequestEvent;
-      if (!isCommentsSelector(ev.detail.selector)) return;
-      const target = ev.target as HTMLElement | null;
+    const onRequest = (event: RequestEvent) => {
+      if (!isCommentsSelector(event.detail.selector)) return;
+      const target = event.target as HTMLElement | null;
       const url = target?.getAttribute("url");
       if (!url || !isValidAutomergeUrl(url)) return;
 
       // Claim synchronously so the request doesn't bubble further while we
       // resolve the SubHandle.
-      ev.stopPropagation();
+      event.stopPropagation();
 
       void (async () => {
         await ensureLoaded(url);
         const sub = map.get(url);
-        if (sub) respond(ev, sub);
+        if (sub) respond(event, sub);
       })();
     };
 

@@ -22,25 +22,27 @@ type TextCommentTarget = {
 const newId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-export const TextEditor = withHandle<DocHandle<TextDoc>>(async ({ element, handle }) => {
-  const comments = await request<Handle<Comment[]>>(element, Comments);
+export const TextEditor = withHandle<DocHandle<TextDoc>>(
+  async ({ element, handle }) => {
+    const comments = await request<Handle<Comment[]>>(element, Comments);
 
-  let host!: HTMLDivElement;
+    let host!: HTMLDivElement;
 
-  const dispose = render(
-    () => <div ref={host} class="text-editor" />,
-    element,
-  );
+    const dispose = render(
+      () => <div ref={host} class="text-editor" />,
+      element,
+    );
 
-  const view = new EditorView({
-    state: EditorState.create({
-      doc: handle.doc().text,
-      extensions: [
-        minimalSetup,
-        EditorView.lineWrapping,
-        automergeSyncPlugin({ handle, path: ["text"] }),
-        mentionPlugin(),
-        mentionRenderer(),
+    const extensions = [
+      minimalSetup,
+      EditorView.lineWrapping,
+      automergeSyncPlugin({ handle, path: ["text"] }),
+      mentionPlugin(),
+      mentionRenderer(),
+    ];
+
+    if (comments) {
+      extensions.push(
         commentButtonPlugin(({ from, to, selectedText }) => {
           const doc = handle.doc();
           const startCursor = getCursor(doc, ["text"], from);
@@ -54,13 +56,20 @@ export const TextEditor = withHandle<DocHandle<TextDoc>>(async ({ element, handl
             });
           });
         }),
-      ],
-    }),
-    parent: host,
-  });
+      );
+    }
 
-  return () => {
-    view.destroy();
-    dispose();
-  };
-});
+    const view = new EditorView({
+      state: EditorState.create({
+        doc: handle.doc().text,
+        extensions,
+      }),
+      parent: host,
+    });
+
+    return () => {
+      view.destroy();
+      dispose();
+    };
+  },
+);

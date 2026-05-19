@@ -1,8 +1,9 @@
 import type { Component as SolidComponent } from "solid-js";
 import { Repo, type AutomergeUrl } from "@automerge/automerge-repo";
 import "../../core/patchwork-view";
-import { createRepoProvider } from "../../core/createRepoProvider";
 import { MapHandle } from "../../core/handles";
+import { FallbackProvider } from "../../providers/FallbackProvider";
+import { RepoProvider } from "../../providers/RepoProvider";
 import {
   CommentsProvider,
   CommentsSidebar,
@@ -15,7 +16,7 @@ import {
 import type { TextDoc } from "../../components/TextEditor/TextEditor";
 
 const repo = new Repo({});
-const RepoProvider = createRepoProvider(repo);
+const repoProvider = RepoProvider(repo);
 
 const docAUrl = repo.create<TextDoc>({
   text:
@@ -57,19 +58,21 @@ export const CommentsExample: SolidComponent = () => {
   const commentsMap = new MapHandle<AutomergeUrl, Comment[]>();
 
   return (
-    <patchwork-view prop:component={RepoProvider}>
-      <div class="comments-example">
-        <patchwork-view
-          prop:component={CommentsProvider}
-          prop:handle={commentsMap}
-        >
-          <patchwork-view prop:component={SpatialCanvas} url={canvasUrl} />
-        </patchwork-view>
-        <patchwork-view
-          prop:component={CommentsSidebar}
-          prop:handle={commentsMap}
-        />
-      </div>
+    <patchwork-view prop:component={FallbackProvider}>
+      <patchwork-view prop:component={repoProvider}>
+        <div class="comments-example">
+          <patchwork-view
+            prop:component={CommentsProvider}
+            prop:handle={commentsMap}
+          >
+            <patchwork-view prop:component={SpatialCanvas} url={canvasUrl} />
+          </patchwork-view>
+          <patchwork-view
+            prop:component={CommentsSidebar}
+            prop:handle={commentsMap}
+          />
+        </div>
+      </patchwork-view>
     </patchwork-view>
   );
 };
