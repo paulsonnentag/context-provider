@@ -33,29 +33,29 @@ export const CommentsProvider = withHandle<
 >(async ({ element, handle: commentsHandle }) => {
   element.style.display = "contents";
 
-  const docsMap = subscribeToDocsIn<PatchworkMetadata>(element);
+  const docsHandle = subscribeToDocsIn<PatchworkMetadata>(element);
 
   const sync = () => {
-    for (const url of Object.keys(docsMap.value) as AutomergeUrl[]) {
+    for (const url of Object.keys(docsHandle.value) as AutomergeUrl[]) {
       if (url in commentsHandle.value) continue;
-      const docHandle = docsMap.ref(url) as DocHandle<PatchworkMetadata>;
+      const docHandle = docsHandle.ref(url) as DocHandle<PatchworkMetadata>;
       const sub = docHandle.ref(["@patchwork", "comments"], []);
       commentsHandle.change((s) => {
         s[url] = sub as unknown as Comment[];
       });
     }
     for (const url of Object.keys(commentsHandle.value) as AutomergeUrl[]) {
-      if (url in docsMap.value) continue;
+      if (url in docsHandle.value) continue;
       commentsHandle.change((s) => {
         delete s[url];
       });
     }
   };
 
-  docsMap.on("change", sync);
+  docsHandle.on("change", sync);
   sync();
 
-  const onRequest = (event: RequestEvent) => {
+  const onRequest = async (event: RequestEvent) => {
     const { url } = event.detail;
     if (!isCommentsSelector(event.detail.selector) || !url) return;
     event.stopPropagation();
@@ -64,17 +64,13 @@ export const CommentsProvider = withHandle<
       commentsHandle.change((s) => {
         s[url] = [];
       });
-      void (async () => {
-        const dh = await request<DocHandle<PatchworkMetadata>>(
-          element,
-          Doc(url),
-        );
-        if (!dh) return;
-        const sub = dh.ref(["@patchwork", "comments"], []);
-        commentsHandle.change((s) => {
-          s[url] = sub as unknown as Comment[];
-        });
-      })();
+
+      const dh = await request<DocHandle<PatchworkMetadata>>(element, Doc(url));
+      if (!dh) return;
+      const sub = dh.ref(["@patchwork", "comments"], []);
+      commentsHandle.change((s) => {
+        s[url] = sub as unknown as Comment[];
+      });
     }
 
     respond(event, commentsHandle.ref(url));
@@ -82,8 +78,8 @@ export const CommentsProvider = withHandle<
   element.addEventListener("patchwork:request", onRequest);
 
   return () => {
-    docsMap.off("change", sync);
-    docsMap.destroy();
+    docsHandle.off("change", sync);
+    docsHandle.destroy();
     element.removeEventListener("patchwork:request", onRequest);
     commentsHandle.change((s) => {
       for (const url of Object.keys(s) as AutomergeUrl[]) delete s[url];
