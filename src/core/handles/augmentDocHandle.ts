@@ -32,21 +32,22 @@ if (!Object.prototype.hasOwnProperty.call(DocHandle.prototype, HANDLE_BRAND)) {
   });
 }
 
-if (!Object.prototype.hasOwnProperty.call(DocHandle.prototype, "ref")) {
-  Object.defineProperty(DocHandle.prototype, "ref", {
-    value: function (this: DocHandle<unknown>, ...args: unknown[]) {
-      // Tuple+default form: `ref([...path], defaultValue)` — vivify missing
-      // intermediates and the leaf before returning the sub-handle.
-      if (args.length === 2 && Array.isArray(args[0])) {
-        const path = args[0] as readonly (string | number)[];
-        const defaultValue = args[1];
-        this.change((d) => vivify(d as object, path, defaultValue));
-        return new SubHandle(this as unknown as Handle<unknown>, path);
-      }
-      const path = args as readonly (string | number)[];
+// automerge-repo's DocHandle ships its own `ref` (a path-based RefImpl that
+// expects PathInput segments, not arrays). We deliberately clobber it so the
+// Handle.ref contract is uniform across DocHandle/StateHandle/SubHandle.
+Object.defineProperty(DocHandle.prototype, "ref", {
+  value: function (this: DocHandle<unknown>, ...args: unknown[]) {
+    // Tuple+default form: `ref([...path], defaultValue)` — vivify missing
+    // intermediates and the leaf before returning the sub-handle.
+    if (args.length === 2 && Array.isArray(args[0])) {
+      const path = args[0] as readonly (string | number)[];
+      const defaultValue = args[1];
+      this.change((d) => vivify(d as object, path, defaultValue));
       return new SubHandle(this as unknown as Handle<unknown>, path);
-    },
-    configurable: true,
-    writable: true,
-  });
-}
+    }
+    const path = args as readonly (string | number)[];
+    return new SubHandle(this as unknown as Handle<unknown>, path);
+  },
+  configurable: true,
+  writable: true,
+});
