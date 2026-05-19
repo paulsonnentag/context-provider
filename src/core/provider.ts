@@ -1,3 +1,4 @@
+import { isValidAutomergeUrl } from "@automerge/automerge-repo";
 import { Handle } from "./handles";
 import type {
   RequestEvent,
@@ -29,9 +30,12 @@ export function request<T = unknown>(
 
     element.addEventListener("patchwork:response", onResponse);
 
+    const rawUrl = element.getAttribute("url");
+    const url = rawUrl && isValidAutomergeUrl(rawUrl) ? rawUrl : null;
+
     element.dispatchEvent(
       new CustomEvent<RequestEventDetail>("patchwork:request", {
-        detail: { id, selector },
+        detail: { id, selector, url },
         bubbles: true,
       }),
     );

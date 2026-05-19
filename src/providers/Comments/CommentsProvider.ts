@@ -29,14 +29,10 @@ export type CommentsSelector = typeof Comments;
 export const isCommentsSelector = (s: Selector): s is CommentsSelector =>
   s.type === Comments.type;
 
-// Parent owns the aggregate MapHandle (keyed by url) and passes it in via
-// `prop:handle`; the CommentsSidebar can subscribe to the same instance.
 export const CommentsProvider = withHandle<MapHandle<AutomergeUrl, Comment[]>>(
   async ({ element, handle: map }) => {
     element.style.display = "contents";
 
-    // Ref counts are driven by patchwork:mount/unmount lifecycle only;
-    // requests just borrow the tracked sub-handle without touching refs.
     const refs = new Map<AutomergeUrl, number>();
     const loading = new Map<AutomergeUrl, Promise<void>>();
 
@@ -103,14 +99,10 @@ export const CommentsProvider = withHandle<MapHandle<AutomergeUrl, Comment[]>>(
       release(url);
     };
 
-    const onRequest = (event: RequestEvent) => {
-      if (!isCommentsSelector(event.detail.selector)) return;
-      const target = event.target as HTMLElement | null;
-      const url = target?.getAttribute("url");
-      if (!url || !isValidAutomergeUrl(url)) return;
+    const onRequest = async (event: RequestEvent) => {
+      const { url } = event.detail;
+      if (!isCommentsSelector(event.detail.selector) || !url) return;
 
-      // Claim synchronously so the request doesn't bubble further while we
-      // resolve the SubHandle.
       event.stopPropagation();
 
       void (async () => {

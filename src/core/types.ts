@@ -1,3 +1,5 @@
+import type { AutomergeUrl } from "@automerge/automerge-repo";
+
 export type Selector = {
   type: string;
 };
@@ -7,6 +9,7 @@ export type Component = (element: HTMLElement) => Promise<() => void>;
 export type RequestEventDetail = {
   id: string;
   selector: Selector;
+  url: AutomergeUrl | null;
 };
 
 export type ResponseEventDetail = {
