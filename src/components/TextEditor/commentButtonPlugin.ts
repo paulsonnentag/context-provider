@@ -33,6 +33,9 @@ export const commentButtonPlugin = (
           if (sel.empty) return;
           const selectedText = view.state.doc.sliceString(sel.from, sel.to);
           onComment({ from: sel.from, to: sel.to, selectedText }, view);
+          // Collapse the selection so the comment button hides and the user
+          // gets feedback that the action landed.
+          view.dispatch({ selection: { anchor: sel.from } });
         });
         view.dom.appendChild(this.button);
         this.scheduleReposition();

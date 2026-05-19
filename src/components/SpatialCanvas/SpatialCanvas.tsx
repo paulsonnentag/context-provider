@@ -3,7 +3,9 @@ import { render } from "solid-js/web";
 import type { AutomergeUrl } from "@automerge/automerge-repo";
 import type { DocHandle } from "@automerge/automerge-repo";
 import { withHandle } from "@/core/withHandle";
+import { subscribeToDocsIn } from "@/core/subscribeToDocsIn";
 import type { Component } from "@/core/types";
+import type { PatchworkMetadata } from "@/providers/Comments";
 import { Counter } from "@/examples/Counter/Counter";
 import { TextEditor } from "@/components/TextEditor/TextEditor";
 import { MapView } from "@/components/MapView/MapView";
@@ -20,8 +22,6 @@ type DocShape = Base & { url: AutomergeUrl };
 
 export type CounterShape = DocShape & { type: "counter" };
 export type TextShape = DocShape & { type: "text" };
-// MapShape has no url: it is a consumer that asks the GeolocationProvider for
-// the aggregated locations across every doc in scope, not a view onto a doc.
 export type MapShape = Base & { type: "map" };
 
 export type Shape = CounterShape | TextShape | MapShape;
@@ -44,78 +44,96 @@ function viewForShape(shape: Shape): Component {
 const shapeUrl = (shape: Shape): AutomergeUrl | undefined =>
   shape.type === "map" ? undefined : shape.url;
 
-export const SpatialCanvas = withHandle<DocHandle<CanvasDoc>>(({ element, handle }) => {
-  const [doc, setDoc] = createSignal(handle.doc());
-  const onChange = () => setDoc({ ...handle.doc() });
-  handle.on("change", onChange);
+export const SpatialCanvas = withHandle<DocHandle<CanvasDoc>>(
+  ({ element, handle }) => {
+    const [doc, setDoc] = createSignal(handle.doc());
+    const onChange = () => setDoc({ ...handle.doc() });
+    handle.on("change", onChange);
 
-  // Key `<For>` on stable string ids so each panel and its embedded
-  // <patchwork-view> persist across doc changes (a drag should not tear down
-  // and remount other shapes' counters).
-  const shapeIds = () => Object.keys(doc().shapes);
+    // Pick up `@patchwork.title` for each rendered shape's source doc by
+    // observing the <patchwork-view> children mounted under this element.
+    const childDocs = subscribeToDocsIn<PatchworkMetadata>(element);
+    const [docs, setDocs] = createSignal(childDocs.value);
+    childDocs.on("change", () => setDocs({ ...childDocs.value }));
 
-  const bringToFront = (id: string) => {
-    handle.change((d) => {
-      const target = d.shapes[id];
-      if (!target) return;
-      let max = 0;
-      for (const s of Object.values(d.shapes)) {
-        if (s.zIndex > max) max = s.zIndex;
+    const titleFor = (shape: Shape): string => {
+      const url = shapeUrl(shape);
+      if (url) {
+        const title = docs()[url]?.["@patchwork"]?.title;
+        if (title) return title;
       }
-      if (target.zIndex === max) return;
-      target.zIndex = max + 1;
-    });
-  };
+      return shape.type;
+    };
 
-  const moveShape = (id: string, x: number, y: number) => {
-    handle.change((d) => {
-      const s = d.shapes[id];
-      if (!s) return;
-      s.x = x;
-      s.y = y;
-    });
-  };
+    // Key `<For>` on stable string ids so each panel and its embedded
+    // <patchwork-view> persist across doc changes (a drag should not tear down
+    // and remount other shapes' counters).
+    const shapeIds = () => Object.keys(doc().shapes);
 
-  const dispose = render(
-    () => (
-      <div class="spatial-canvas">
-        <For each={shapeIds()}>
-          {(id) => {
-            const shape = () => doc().shapes[id];
-            return (
-              <Show when={shape()}>
-                {(s) => (
-                  <Panel
-                    x={s().x}
-                    y={s().y}
-                    width={s().width}
-                    height={s().height}
-                    zIndex={s().zIndex}
-                    title={s().type}
-                    kind={s().type}
-                    onPickUp={() => bringToFront(id)}
-                    onMove={(nx, ny) => moveShape(id, nx, ny)}
-                  >
-                    <patchwork-view
-                      prop:component={viewForShape(s())}
-                      url={shapeUrl(s())}
-                    />
-                  </Panel>
-                )}
-              </Show>
-            );
-          }}
-        </For>
-      </div>
-    ),
-    element,
-  );
+    const bringToFront = (id: string) => {
+      handle.change((d) => {
+        const target = d.shapes[id];
+        if (!target) return;
+        let max = 0;
+        for (const s of Object.values(d.shapes)) {
+          if (s.zIndex > max) max = s.zIndex;
+        }
+        if (target.zIndex === max) return;
+        target.zIndex = max + 1;
+      });
+    };
 
-  return () => {
-    handle.off("change", onChange);
-    dispose();
-  };
-});
+    const moveShape = (id: string, x: number, y: number) => {
+      handle.change((d) => {
+        const s = d.shapes[id];
+        if (!s) return;
+        s.x = x;
+        s.y = y;
+      });
+    };
+
+    const dispose = render(
+      () => (
+        <div class="spatial-canvas">
+          <For each={shapeIds()}>
+            {(id) => {
+              const shape = () => doc().shapes[id];
+              return (
+                <Show when={shape()}>
+                  {(s) => (
+                    <Panel
+                      x={s().x}
+                      y={s().y}
+                      width={s().width}
+                      height={s().height}
+                      zIndex={s().zIndex}
+                      title={titleFor(s())}
+                      kind={s().type}
+                      onPickUp={() => bringToFront(id)}
+                      onMove={(nx, ny) => moveShape(id, nx, ny)}
+                    >
+                      <patchwork-view
+                        prop:component={viewForShape(s())}
+                        url={shapeUrl(s())}
+                      />
+                    </Panel>
+                  )}
+                </Show>
+              );
+            }}
+          </For>
+        </div>
+      ),
+      element,
+    );
+
+    return () => {
+      handle.off("change", onChange);
+      childDocs.destroy();
+      dispose();
+    };
+  },
+);
 
 type PanelProps = {
   x: number;
@@ -133,9 +151,10 @@ type PanelProps = {
 const Panel = (props: PanelProps) => {
   // Track in-flight drag offset locally so we don't hit the doc on every move.
   // The final position is committed once on pointerup.
-  const [dragOffset, setDragOffset] = createSignal<
-    { dx: number; dy: number } | null
-  >(null);
+  const [dragOffset, setDragOffset] = createSignal<{
+    dx: number;
+    dy: number;
+  } | null>(null);
 
   const x = () => props.x + (dragOffset()?.dx ?? 0);
   const y = () => props.y + (dragOffset()?.dy ?? 0);
@@ -181,9 +200,7 @@ const Panel = (props: PanelProps) => {
       <div class="panel-titlebar" onPointerDown={onPointerDown}>
         {props.title}
       </div>
-      <div class={`panel-body panel-body--${props.kind}`}>
-        {props.children}
-      </div>
+      <div class={`panel-body panel-body--${props.kind}`}>{props.children}</div>
     </div>
   );
 };

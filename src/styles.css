@@ -723,6 +723,25 @@ patchwork-view {
   cursor: text;
 }
 
+.comments-sidebar-item-content--empty {
+  color: #aaa;
+  font-style: italic;
+  cursor: default;
+}
+
+.comments-sidebar-item-quote {
+  margin: 0;
+  padding: 0 0 0 0.5rem;
+  border-left: 2px solid #ddd;
+  color: #555;
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+}
+
 .comments-sidebar-item-footer {
   display: flex;
   align-items: center;
@@ -784,22 +803,26 @@ patchwork-view {
   color: #b91c1c;
 }
 
-.comments-sidebar-edit {
+.comments-sidebar-item-edit {
   font: inherit;
   font-size: 0.85rem;
   width: 100%;
-  min-height: 4.5em;
+  min-height: 2.25rem;
   resize: vertical;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid #d4d4d4;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ececec;
   border-radius: 6px;
   background: #fff;
   color: #1f1f1f;
   outline: none;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
-.comments-sidebar-edit:focus {
+.comments-sidebar-item-edit::placeholder {
+  color: #aaa;
+}
+
+.comments-sidebar-item-edit:focus {
   border-color: #1f1f1f;
 }
 
@@ -844,6 +867,11 @@ patchwork-view {
   line-height: 1.4;
   cursor: default;
   vertical-align: baseline;
+}
+
+.cm-comment-highlight {
+  background: #fff3a3;
+  border-bottom: 1px solid #f6c026;
 }
 
 /* Comment button rendered by commentButtonPlugin into view.dom (.cm-editor) */

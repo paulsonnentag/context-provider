@@ -1,6 +1,6 @@
 import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
 import { Doc } from "@/core/doc";
-import { StateHandle } from "@/core/handles";
+import { StateHandle, type Handle } from "@/core/handles";
 import { subscribeToDocsIn } from "@/core/subscribeToDocsIn";
 import { request, respond } from "@/core/provider";
 import type { RequestEvent, Selector } from "@/core/types";
@@ -12,15 +12,36 @@ export type Comment = {
   // TextEditor stores `{ startCursor, endCursor }`; other consumers can store
   // whatever they need.
   target: unknown;
+  // Frozen quote of what was originally selected when the comment was created.
+  snippet: string;
+  // User-authored body. May be empty until the user types something.
   content: string;
+  // When defined the comment is in edit mode and `draft` holds the pending
+  // text; saving copies it into `content` and removes `draft`.
+  draft?: string;
   createdAt: number;
 };
 
 export type PatchworkMetadata = {
   "@patchwork"?: {
     comments?: Comment[];
+    title?: string;
   };
 };
+
+// Resolve a Handle<string> over `@patchwork.title` for the given url via the
+// provider chain (RepoProvider). Vivifies an empty string when the field is
+// absent so consumers always get a live handle they can subscribe to.
+export async function requestTitleHandle(
+  element: HTMLElement,
+  url: AutomergeUrl,
+): Promise<Handle<string> | null> {
+  const dh = await request<DocHandle<PatchworkMetadata>>(element, Doc(url));
+  if (!dh) return null;
+  // Vivify ensures the slot is always a string at runtime; widen the static
+  // `string | undefined` (from the optional title field) back to `string`.
+  return dh.ref(["@patchwork", "title"], "") as Handle<string>;
+}
 
 export const Comments: Selector = { type: "comments" };
 

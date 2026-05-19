@@ -9,6 +9,7 @@ import { withHandle } from "@/core/withHandle";
 import { request } from "@/core/provider";
 import { Comments, type Comment } from "@/providers/Comments";
 import { commentButtonPlugin } from "./commentButtonPlugin";
+import { commentRangePlugin } from "./commentRangePlugin";
 import { mentionPlugin } from "./mentionPlugin";
 import { mentionRenderer } from "./mentionRenderer";
 
@@ -51,11 +52,14 @@ export const TextEditor = withHandle<DocHandle<TextDoc>>(
             cs.push({
               id: newId(),
               target: { startCursor, endCursor } satisfies TextCommentTarget,
-              content: selectedText,
+              snippet: selectedText,
+              content: "",
+              draft: "",
               createdAt: Date.now(),
             });
           });
         }),
+        commentRangePlugin(handle, comments),
       );
     }
 
