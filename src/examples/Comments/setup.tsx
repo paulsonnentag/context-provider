@@ -21,13 +21,15 @@ const repoProvider = RepoProvider(repo);
 const docAUrl = repo.create<TextDoc>({
   text:
     "Puffins\n\n" +
-    'Atlantic puffins are small, stocky seabirds that spend most of their lives bobbing on the open ocean and only come ashore each spring to breed on cliff-top colonies in the North Atlantic. Their black-and-white plumage and oversized, candy-striped beaks have earned them the nickname "clowns of the sea" — but that beak is also a remarkably good fishing tool: backward-facing spines on a puffin\'s tongue and palate let it pin one slippery fish in place while it dives again, so a single bird can return to its burrow with a dozen sand eels still dangling crosswise in its mouth.',
+    "Atlantic puffins are small, stocky seabirds that spend most of their lives bobbing on the open ocean and only come ashore each spring to breed on cliff-top colonies in the North Atlantic.\n\n" +
+    'Their black-and-white plumage and oversized, candy-striped beaks have earned them the nickname "clowns of the sea" — but that beak is also a remarkably good fishing tool: backward-facing spines on a puffin\'s tongue and palate let it pin one slippery fish in place while it dives again, so a single bird can return to its burrow with a dozen sand eels still dangling crosswise in its mouth.',
 }).url;
 
 const docBUrl = repo.create<TextDoc>({
   text:
     "Robins\n\n" +
-    "The American robin is one of the most familiar birds across North America — a grey-backed thrush with a brick-red breast and a clear, rolling dawn song. Robins forage on lawns for earthworms in the cool of morning and switch to berries later in the day, which is part of how they manage to migrate so far. To stay on course they appear to do something stranger than navigation by landmarks: light-sensitive pigments in their eyes react to Earth's magnetic field, effectively giving them a faint compass overlay on whatever they happen to be looking at.",
+    "The American robin is one of the most familiar birds across North America — a grey-backed thrush with a brick-red breast and a clear, rolling dawn song.\n\n" +
+    "Robins forage on lawns for earthworms in the cool of morning and switch to berries later in the day, which is part of how they manage to migrate so far. To stay on course they appear to do something stranger than navigation by landmarks: light-sensitive pigments in their eyes react to Earth's magnetic field, effectively giving them a faint compass overlay on whatever they happen to be looking at.",
 }).url;
 
 const canvasUrl = repo.create<CanvasDoc>({
@@ -43,7 +45,7 @@ const canvasUrl = repo.create<CanvasDoc>({
     },
     b: {
       type: "text",
-      x: 600,
+      x: 400,
       y: 200,
       width: 480,
       height: 400,

@@ -1,11 +1,10 @@
 import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
-import { isValidAutomergeUrl } from "@automerge/automerge-repo";
-import { Doc } from "../../core/doc";
-import { StateHandle } from "../../core/handles";
-import type { PatchworkLifecycleEvent } from "../../core/patchwork-view";
-import { request, respond } from "../../core/provider";
-import type { RequestEvent, Selector } from "../../core/types";
-import { withHandle } from "../../core/withHandle";
+import { Doc } from "@/core/doc";
+import { StateHandle } from "@/core/handles";
+import { subscribeToDocsIn } from "@/core/subscribeToDocsIn";
+import { request, respond } from "@/core/provider";
+import type { RequestEvent, Selector } from "@/core/types";
+import { withHandle } from "@/core/withHandle";
 
 export type Comment = {
   id: string;
@@ -31,96 +30,63 @@ export const isCommentsSelector = (s: Selector): s is CommentsSelector =>
 
 export const CommentsProvider = withHandle<
   StateHandle<Record<AutomergeUrl, Comment[]>>
->(async ({ element, handle: state }) => {
+>(async ({ element, handle: commentsHandle }) => {
   element.style.display = "contents";
 
-  const refs = new Map<AutomergeUrl, number>();
-  const loading = new Map<AutomergeUrl, Promise<void>>();
+  const docsMap = subscribeToDocsIn<PatchworkMetadata>(element);
 
-  const ensureLoaded = (url: AutomergeUrl): Promise<void> => {
-    if (state.value[url] !== undefined) return Promise.resolve();
-    const inFlight = loading.get(url);
-    if (inFlight) return inFlight;
-
-    const p = (async () => {
-      const dh = await request<DocHandle<PatchworkMetadata>>(element, Doc(url));
-      if (!dh) {
-        console.warn(
-          `CommentsProvider: no provider responded for Doc(${url}). ` +
-            "Make sure a RepoProvider is mounted above this view.",
-        );
-        return;
-      }
-      if (state.value[url] === undefined) {
-        // `dh.ref([...], [])` vivifies `@patchwork.comments` if missing.
-        // The cast covers the static gap between the slot's plain-value type
-        // and the Handle that the StateHandle proxy resolves at runtime.
-        const sub = dh.ref(["@patchwork", "comments"], []);
-        state.change((s) => {
-          s[url] = sub as unknown as Comment[];
-        });
-      }
-    })();
-
-    loading.set(url, p);
-    return p.finally(() => loading.delete(url));
-  };
-
-  const acquire = async (url: AutomergeUrl): Promise<void> => {
-    const prev = refs.get(url) ?? 0;
-    refs.set(url, prev + 1);
-    if (prev === 0) await ensureLoaded(url);
-  };
-
-  const release = (url: AutomergeUrl): void => {
-    const r = refs.get(url);
-    if (!r) return;
-    if (r > 1) {
-      refs.set(url, r - 1);
-      return;
+  const sync = () => {
+    for (const url of Object.keys(docsMap.value) as AutomergeUrl[]) {
+      if (url in commentsHandle.value) continue;
+      const docHandle = docsMap.ref(url) as DocHandle<PatchworkMetadata>;
+      const sub = docHandle.ref(["@patchwork", "comments"], []);
+      commentsHandle.change((s) => {
+        s[url] = sub as unknown as Comment[];
+      });
     }
-    refs.delete(url);
-    state.change((s) => {
-      delete s[url];
-    });
+    for (const url of Object.keys(commentsHandle.value) as AutomergeUrl[]) {
+      if (url in docsMap.value) continue;
+      commentsHandle.change((s) => {
+        delete s[url];
+      });
+    }
   };
 
-  const onMount = (event: PatchworkLifecycleEvent) => {
-    const { url } = event.detail;
-    if (!url || !isValidAutomergeUrl(url)) return;
-    void acquire(url);
-  };
+  docsMap.on("change", sync);
+  sync();
 
-  const onUnmount = (event: PatchworkLifecycleEvent) => {
-    const { url } = event.detail;
-    if (!url || !isValidAutomergeUrl(url)) return;
-    release(url);
-  };
-
-  const onRequest = async (event: RequestEvent) => {
+  const onRequest = (event: RequestEvent) => {
     const { url } = event.detail;
     if (!isCommentsSelector(event.detail.selector) || !url) return;
-
     event.stopPropagation();
 
-    void (async () => {
-      await ensureLoaded(url);
-      const sub = state.ref(url);
-      if (sub) respond(event, sub);
-    })();
-  };
+    if (!(url in commentsHandle.value)) {
+      commentsHandle.change((s) => {
+        s[url] = [];
+      });
+      void (async () => {
+        const dh = await request<DocHandle<PatchworkMetadata>>(
+          element,
+          Doc(url),
+        );
+        if (!dh) return;
+        const sub = dh.ref(["@patchwork", "comments"], []);
+        commentsHandle.change((s) => {
+          s[url] = sub as unknown as Comment[];
+        });
+      })();
+    }
 
-  element.addEventListener("patchwork:mount", onMount);
-  element.addEventListener("patchwork:unmount", onUnmount);
+    respond(event, commentsHandle.ref(url));
+  };
   element.addEventListener("patchwork:request", onRequest);
 
   return () => {
-    element.removeEventListener("patchwork:mount", onMount);
-    element.removeEventListener("patchwork:unmount", onUnmount);
+    docsMap.off("change", sync);
+    docsMap.destroy();
     element.removeEventListener("patchwork:request", onRequest);
-    state.change((s) => {
-      for (const url of refs.keys()) delete s[url];
+    commentsHandle.change((s) => {
+      for (const url of Object.keys(s) as AutomergeUrl[]) delete s[url];
     });
-    refs.clear();
   };
 });
