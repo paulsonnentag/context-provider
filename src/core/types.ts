@@ -16,3 +16,10 @@ export type ResponseEventDetail = {
 
 export type RequestEvent = CustomEvent<RequestEventDetail>;
 export type ResponseEvent = CustomEvent<ResponseEventDetail>;
+
+declare global {
+  interface HTMLElementEventMap {
+    "patchwork:request": RequestEvent;
+    "patchwork:response": ResponseEvent;
+  }
+}

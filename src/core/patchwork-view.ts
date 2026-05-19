@@ -157,3 +157,11 @@ declare module "solid-js" {
     }
   }
 }
+
+declare global {
+  interface HTMLElementEventMap {
+    "patchwork:mount": PatchworkLifecycleEvent;
+    "patchwork:unmount": PatchworkLifecycleEvent;
+    "patchwork:handle-change": CustomEvent;
+  }
+}
